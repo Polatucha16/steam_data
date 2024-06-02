@@ -163,14 +163,15 @@ def hour_percentiles_for_games(
 
     return query
 
-def player_history(profile_code, top=10):
-	query = (
-		select(GamesData.profile_code, GamesData.game_code, GamesData.hours_on_record)
-		.filter(GamesData.profile_code == profile_code)
-		.order_by(GamesData.hours_on_record.desc())
-        .limit(top)
+def player_history(profile_code, top=None):
+    query = (
+        select(GamesData.profile_code, GamesData.game_code, GamesData.hours_on_record)
+        .filter(GamesData.profile_code == profile_code)
+        .order_by(GamesData.hours_on_record.desc())
     )
-	return query
+    if top is not None:
+        query = query.limit(top)
+    return query
 
 def players_history_in_games(game_codes: list, profile_codes:list=None):
     """ Returns a query that selects profile_code and hours_on_record for each game_code in game_codes.
