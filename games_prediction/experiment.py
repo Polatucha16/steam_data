@@ -11,7 +11,6 @@ from games_prediction.traning_data_strategies import TraningDataStrategy
 from games_prediction.sample_data_join import JoiningStrategy
 from games_prediction.filling import FillingStrategy
 from games_prediction.normalisation import NormalisationStrategy
-from games_prediction.history_of_user import HistoryOfUserStrategy
 
 class Experiment:
     def __init__(
@@ -23,7 +22,6 @@ class Experiment:
         joining_strategy : JoiningStrategy,
         matrix_filling_strategy : FillingStrategy,
         normalisation_strategy : NormalisationStrategy,
-        # history_of_user_strategy : HistoryOfUserStrategy
         # performance_test_strategy
     ):
         self.pick_user_and_sample_strategy = pick_user_and_sample_strategy
@@ -59,19 +57,22 @@ class Experiment:
         self.traning_users = self.traning_users_selection_strategy.select_users(
             self.games_sample)
 
-        # Step 4: Create user history matrix (return ranked_history of users)
-        self.traning_users_data : pl.DataFrame
-        self.user_ranks : pl.DataFrame
-        self.traning_users_data, self.user_ranks = self.traning_users_data_strategy.prepare(
-            self.user_code, 
-            self.games_sample,
-            self.traning_users, 
-            self.selected_games
+        # Step 4: Create traning data (ranked_history of tranming users) & data for sample
+
+        traning_users_list = self.traning_users["profile_code"].to_list()
+        if self.user_code in traning_users_list:
+            traning_users_list.remove(self.user_code)
+        self.traning_users_data: pl.DataFrame
+        self.traning_users_data = self.traning_users_data_strategy.data_for_users(
+            traning_users_list, self.selected_games
         )
+
+        self.user_ranks : pl.DataFrame
+        self.user_ranks = self.traning_users_data_strategy.data_for_sample(self.user_code, self.games_sample)
+
         # Step 4.5 check the order of games
         assert list(map(int, self.traning_users_data.columns[1:])) == self.selected_games, """Games from TraningDataStrategy.prepare 
         do not match selected games in number or in order"""
-        
 
         # Step 5: Create traning_matrix (numpy column users with Nones)
         self.M_incomplete : np.ndarray
@@ -93,15 +94,7 @@ class Experiment:
         self.predicted_ranks = self.normalisation_strategy.normalise(self.predictions_for_user, self.inds_to_predict)
 
         # Step 9: get the true ranks of a user for comparison
-        # self.true_user_hisotry : pl.DataFrame
-        # self.true_user_hisotry = self.history_of_user_strategy.get(self.selected_games, [self.user_code])
-        # step 9.5 : true_user_hisotry -> true_user_ranks
-        # self.true_user_ranks, self.non_existant_user = self.traning_users_data_strategy.prepare(
-        #     -1,
-        #     { 0:0, 1:0 },
-        #     pl.from_dict(({"profile_code": [self.user_code],"bla":[5]})),
-        #     self.selected_games
-        # )
+        self.true_user_ranks = self.traning_users_data_strategy.data_for_users([self.user_code], self.selected_games)
 
 
         # Step 8: Compare true history with filled matrix
