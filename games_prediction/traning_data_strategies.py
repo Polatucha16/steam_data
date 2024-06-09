@@ -14,7 +14,7 @@ class TraningDataStrategy(ABC):
     #     """prepare both traning_data and the user_sample"""
     #     pass
     @abstractmethod
-    def data_for_users(self, profile_codes, game_codes, **kwargs):
+    def data_for_users(self, profile_codes, game_codes, **kwargs)->pl.DataFrame:
         """ get histories of users in games and transform """
         pass
 

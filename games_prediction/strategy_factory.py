@@ -5,6 +5,9 @@ from games_prediction.traning_data_strategies import QuantileRanking
 from games_prediction.sample_data_join import LastColumn
 from games_prediction.filling import FillWithCSMC
 from games_prediction.normalisation import NormaliseRanks
+from games_prediction.performance_test import StatisticalTests
+from games_prediction.game_names import GameNamesFromDB
+from games_prediction.visualization import VerticalBarPlot
 
 """
 pick_user_and_sample_strategy,
@@ -73,3 +76,24 @@ class StrategyFactory:
             return NormaliseRanks(**kwargs)
         else:
             strategy_name_not_found(strategy_name, self.normalisation_strategies)
+
+    def create_test(self, strategy_name, **kwargs):
+        self.test_strategies = ['statistical-tests']
+        if strategy_name == 'statistical-tests':
+            return StatisticalTests(**kwargs)
+        else:
+            strategy_name_not_found(strategy_name, self.test_strategies)
+    
+    def create_naming(self, strategy_name, **kwargs):
+        self.naming_strategies = ['names-from-db']
+        if strategy_name == 'names-from-db':
+            return GameNamesFromDB(**kwargs)
+        else:
+            strategy_name_not_found(strategy_name, self.naming_strategies)
+
+    def create_visualization(self, strategy_name, **kwargs):
+        self.visualization_strategies = ['vertical-bar-plot']
+        if strategy_name == 'vertical-bar-plot':
+            return VerticalBarPlot(**kwargs)
+        else:
+            strategy_name_not_found(strategy_name, self.visualization_strategies)
