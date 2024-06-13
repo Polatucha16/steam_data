@@ -29,6 +29,7 @@ class Experiment:
         testing_strategy : TestStrategy,
         visualization_strategy : VisualizationStrategy
     ):
+        """Strategies"""
         self.pick_user_and_sample_strategy = pick_user_and_sample_strategy
         self.game_selection_strategy = game_selection_strategy
         self.game_naming_strategy = game_naming_strategy
@@ -39,9 +40,8 @@ class Experiment:
         self.normalisation_strategy = normalisation_strategy
         self.testing_strategy = testing_strategy
         self.visualization_strategy = visualization_strategy
-        # self.history_of_user_strategy = history_of_user_strategy
-        # self.performance_test_strategy = performance_test_strategy
-
+        
+        """DB Connection"""
         self.engine=engine
 
     def run(self):
@@ -71,12 +71,12 @@ class Experiment:
 
         # Step 4: Create traning data (ranked_history of tranming users) & data for sample
 
-        traning_users_list = self.traning_users["profile_code"].to_list()
-        if self.user_code in traning_users_list:
-            traning_users_list.remove(self.user_code)
+        self.traning_users_list = self.traning_users["profile_code"].to_list()
+        if self.user_code in self.traning_users_list:
+            self.traning_users_list.remove(self.user_code)
         self.traning_users_data: pl.DataFrame
         self.traning_users_data = self.traning_users_data_strategy.data_for_users(
-            traning_users_list, self.selected_games
+            self.traning_users_list, self.selected_games
         )
 
         self.user_ranks : pl.DataFrame

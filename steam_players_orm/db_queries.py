@@ -13,6 +13,12 @@ def top_n_accum(
     accum_col=GamesData.hours_on_record,
     accum_label="hours_on_record"
 ):
+    """Returns a query:
+    
+    SELECT TOP(n) column, accum_func(accum_col)
+    GROUP BY column
+    ORDER BY accum_func(accum_col) DESC;
+    """
     query = (
         select(column.label(col_label), accum_func(accum_col).label(accum_label))
         .group_by(column)
@@ -20,52 +26,6 @@ def top_n_accum(
         .limit(n)
     )
     return query
-
-
-# def distribution_distance_query(input_dict:dict):
-#     """ For input_dict = {gc_0 : hor_0, gc_1 : hor_1, ...} that represent gameplay history name it : "history_of_X"
-#         funtion returns a SELECT query that return a table
-#         with columns :
-#             profile_code,
-#             diff
-#         ordered by diff, such that next to the profile_code there is accumulated difference between
-#             games of profile_code
-#             and
-#             history_of_X
-#         in games from history_of_X.
-#     PREVIEW:
-#         from sqlalchemy import select
-#         from sqlalchemy.dialects import mssql
-
-#         game_code_and_hours = {8025: 400, 708: 2, 57411: 3}
-#         print(distribution_distance_query(game_code_and_hours)
-#             .compile(
-#                 dialect=mssql.dialect(),
-#                 compile_kwargs={"literal_binds": True}
-#                 )
-#         )
-#     """
-
-#     def diff_col_sum(game_code_and_hours:dict):
-#         """Generates: SUM (CASE + CASE + CASE + ...)
-#         that aggregate distances only to game_codes from the game_code_and_hours.keys() """
-#         list_of_stmt = [
-#             f"ABS(CASE WHEN game_code = {game_code} THEN hours_on_record - {hours} ELSE {hours} END)"
-#             for game_code, hours in game_code_and_hours.items()
-#         ]
-#         return "SUM (" + " + ".join(list_of_stmt) + ")"
-
-#     stmt = (
-#         select(
-#         GamesData.profile_code,
-#         sa.literal_column(text=diff_col_sum(input_dict)).label("diff")
-#         )
-#         .where(GamesData.game_code.in_([*input_dict.keys()]))
-#         .group_by(GamesData.profile_code)
-#         .order_by(sa.column("diff"))
-#     )
-#     return stmt
-
 
 def distribution_distance_query(input_dictionary: dict, input_total=None, num_of_results=None):
     """ 
@@ -201,6 +161,51 @@ def players_history_in_games(game_codes: list, profile_codes:list=None):
     return query
 
 # region NOOB code below
+
+# def distribution_distance_query(input_dict:dict):
+#     """ For input_dict = {gc_0 : hor_0, gc_1 : hor_1, ...} that represent gameplay history name it : "history_of_X"
+#         funtion returns a SELECT query that return a table
+#         with columns :
+#             profile_code,
+#             diff
+#         ordered by diff, such that next to the profile_code there is accumulated difference between
+#             games of profile_code
+#             and
+#             history_of_X
+#         in games from history_of_X.
+#     PREVIEW:
+#         from sqlalchemy import select
+#         from sqlalchemy.dialects import mssql
+
+#         game_code_and_hours = {8025: 400, 708: 2, 57411: 3}
+#         print(distribution_distance_query(game_code_and_hours)
+#             .compile(
+#                 dialect=mssql.dialect(),
+#                 compile_kwargs={"literal_binds": True}
+#                 )
+#         )
+#     """
+
+#     def diff_col_sum(game_code_and_hours:dict):
+#         """Generates: SUM (CASE + CASE + CASE + ...)
+#         that aggregate distances only to game_codes from the game_code_and_hours.keys() """
+#         list_of_stmt = [
+#             f"ABS(CASE WHEN game_code = {game_code} THEN hours_on_record - {hours} ELSE {hours} END)"
+#             for game_code, hours in game_code_and_hours.items()
+#         ]
+#         return "SUM (" + " + ".join(list_of_stmt) + ")"
+
+#     stmt = (
+#         select(
+#         GamesData.profile_code,
+#         sa.literal_column(text=diff_col_sum(input_dict)).label("diff")
+#         )
+#         .where(GamesData.game_code.in_([*input_dict.keys()]))
+#         .group_by(GamesData.profile_code)
+#         .order_by(sa.column("diff"))
+#     )
+#     return stmt
+
 # def query_for_gamecodes(code_list):
 #     """function that for example list [8025, 8449, 18723] generates a query :
 #     WITH

@@ -49,8 +49,8 @@ class QuantileRanking(TraningDataStrategy):
         if not hasattr(self, 'df_hour_percentiles'):
             self.get_percentiles_for(game_codes)
         
-        history_for_users: pl.DataFrame
-        history_for_users = pl.read_database(
+        self.history_for_users: pl.DataFrame
+        self.history_for_users = pl.read_database(
             query=players_history_in_games(
                 game_codes=game_codes,
                 profile_codes=profile_codes,
@@ -59,7 +59,7 @@ class QuantileRanking(TraningDataStrategy):
         )
 
         ranks_for_users = map_history_to_ranks_from_percentiles(
-            history_for_users, self.df_hour_percentiles
+            self.history_for_users, self.df_hour_percentiles
         )
 
         return ranks_for_users
