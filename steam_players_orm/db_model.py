@@ -6,8 +6,6 @@ from sqlalchemy.dialects.mssql import NVARCHAR
 server = 'localhost'
 database = 'steam_players'
 driver = 'ODBC Driver 17 for SQL Server'
-# username = '<your_username>'
-# password = '<your_password>'
 
 engine = create_engine(f'mssql://{server}:1433/{database}?trusted_connection=yes&driver={driver}')
 

@@ -9,24 +9,15 @@ from steam_players_orm.db_queries import (
     )
 
 class TraningDataStrategy(ABC):
-    # @abstractmethod
-    # def prepare(self, user_code, games_sample, traning_users, selected_games, **kwargs)->tuple:
-    #     """prepare both traning_data and the user_sample"""
-    #     pass
     @abstractmethod
     def data_for_users(self, profile_codes, game_codes, **kwargs)->pl.DataFrame:
-        """ get histories of users in games and transform """
+        """ transform the record about users in profile_codes in game_codes to data """
         pass
 
     @abstractmethod
     def data_for_sample(self, user_code, game_codes, **kwargs):
-        """ transform the knowladge about user in sample"""
+        """ transform the sample about user to data"""
         pass
-    # def prepare_sample(self):
-    #     pass
-    # @abstractmethod
-    # def transform(self, profile_ids, selected_games):
-    #     pass
 
 
 class QuantileRanking(TraningDataStrategy):
@@ -45,14 +36,15 @@ class QuantileRanking(TraningDataStrategy):
 
     def data_for_users(self, profile_codes: list, game_codes: list):
         """ Make sure that (profile_codes is list) and (that adviced user is not in it)."""
+        self.game_codes = game_codes
 
         if not hasattr(self, 'df_hour_percentiles'):
-            self.get_percentiles_for(game_codes)
+            self.get_percentiles_for(self.game_codes)
         
         self.history_for_users: pl.DataFrame
         self.history_for_users = pl.read_database(
             query=players_history_in_games(
-                game_codes=game_codes,
+                game_codes=self.game_codes,
                 profile_codes=profile_codes,
             ),
             connection=engine,

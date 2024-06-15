@@ -29,7 +29,7 @@ class Experiment:
         testing_strategy : TestStrategy,
         visualization_strategy : VisualizationStrategy
     ):
-        """Strategies"""
+        # Strategies
         self.pick_user_and_sample_strategy = pick_user_and_sample_strategy
         self.game_selection_strategy = game_selection_strategy
         self.game_naming_strategy = game_naming_strategy
@@ -41,7 +41,7 @@ class Experiment:
         self.testing_strategy = testing_strategy
         self.visualization_strategy = visualization_strategy
         
-        """DB Connection"""
+        # DB Connection
         self.engine=engine
 
     def run(self):
@@ -65,7 +65,7 @@ class Experiment:
         self.games_names = self.game_naming_strategy.get(self.selected_games)
 
         # Step 3: Find users that we are going to learn from.
-        self.traning_users : pl.DataFrame
+        self.traning_users : pl.DataFrame # with 'profile_code' column
         self.traning_users = self.traning_users_selection_strategy.select_users(
             self.games_sample)
 
@@ -86,7 +86,7 @@ class Experiment:
         assert (
             list(map(int, self.traning_users_data.columns[1:])) == self.selected_games
         ), """Games from TraningDataStrategy.prepare 
-        do not match selected games in number or in order"""
+        do not match selected_games in number or in order"""
 
         # Step 5: Create traning_matrix (numpy column users with Nones)
         self.M_incomplete : np.ndarray
@@ -134,3 +134,47 @@ class Experiment:
             true_values=self.true_history.to_numpy().reshape(-1),
             game_names=[self.games_names[idx] for idx in self.inds_to_predict],
         )
+
+#region lists_comparison 
+# from games_prediction.experiment_settings import options
+
+# from games_prediction.experiment import Experiment
+# from games_prediction.strategy_factory import StrategyFactory
+
+# factory = StrategyFactory()
+
+# experiment = Experiment(
+#     pick_user_and_sample_strategy = factory.create_sample('k-top-from-user', user_id=427274, top=15),
+#     game_selection_strategy = factory.create_game_selection('popular-games', n_total_hours=50, n_total_owned=50),
+#     game_naming_strategy = factory.create_naming('names-from-db'),
+#     traning_users_selection_strategy = factory.create_traning_users('close-in-l1', num_of_results=100),
+#     traning_users_data_strategy = factory.create_traning_data('quantile-ranking', percentiles=[0.2, 0.4, 0.6, 0.8]),
+#     joining_strategy = factory.create_join('last-column'),
+#     matrix_filling_strategy = factory.create_filling('CSMC', col_fraction=0.2),
+#     normalisation_strategy = factory.create_normalisation('linear-rank', max_rank_value=4),
+#     testing_strategy = factory.create_test('statistical-tests'),
+#     visualization_strategy = factory.create_visualization('vertical-bar-plot')
+# )
+# experiment.run()
+
+# A=history_for_users i B=df_hour_percentiles mają #(A\B) > 0  i #(B\A) > 0
+# proof:
+# set(experiment.traning_users_data_strategy.df_hour_percentiles['game_code'].to_list()).difference(set(list(map(int,experiment.traning_users_data_strategy.history_for_users.columns[1:]))))
+# set(list(map(int,experiment.traning_users_data_strategy.history_for_users.columns[1:]))).difference(set(experiment.traning_users_data_strategy.df_hour_percentiles['game_code'].to_list()))
+#
+# Jak mają się A i B do S=obj.selected_games : #(S\B)>0 oraz A = S
+# proof:
+# set(experiment.selected_games).difference(set(experiment.traning_users_data_strategy.df_hour_percentiles['game_code'].to_list()))
+# set(list(map(int,experiment.traning_users_data_strategy.history_for_users.columns[1:]))).difference(set(experiment.selected_games))
+
+# import polars as pl
+# from steam_players_orm.db_model import engine
+# from steam_players_orm.db_queries import hour_percentiles_for_games
+# # hour_percentiles_for_games([1282, 23, 17])
+# df_in_Q = pl.read_database(
+#             query=hour_percentiles_for_games(experiment.selected_games),
+#             connection=engine,
+#         )
+
+# set(experiment.selected_games).difference(set(df_in_Q['game_code'].to_list()))
+#endregion
