@@ -2,7 +2,7 @@
 data/
 *.zip
 *.pdf
-steam_players.ipynb
-snippets.ipynb
-shinnyapp.py
-pr_main.py
+steam_players
+snippets
+shinnyapp
+pr_main

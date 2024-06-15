@@ -117,3 +117,4 @@ class CloseUsers:
 
     # M_incoplete preparation:
     ## 0. Get the full data about client for comparison 
+    
