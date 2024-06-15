@@ -1,5 +1,6 @@
 **/__pycache__/
 data/
+trash/
 *.zip
 *.pdf
 steam_players
